@@ -1,0 +1,15 @@
+Cobra CLI to set up project.
+Go Gin framework for ease of development
+Swagger for API docs
+
+This App is designed for Muzz' coding challenge.
+
+Set up
+ensure you have golang and docker installed.
+
+I've assumed a DEV environment for the sake of this assessment.
+I have structured the cmd serve folder to allow to a grpc server for future usage(more to show how I go about doing this as aI know Muzz use GRPC)
+
+
+I want to make sure users cannot match with someone they have already seen. so discover will filter that.
+

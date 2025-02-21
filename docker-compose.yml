@@ -1,0 +1,16 @@
+services:
+  rest-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dating-app-rest-api
+    ports:
+      - "8080:8080"
+    entrypoint: ./main serve rest
+    environment:
+      - DB_HOST=
+      - DB_USER=root
+      - DB_PASS=
+      - DB_PORT=
+      - REST_PORT=8080
+      - ENV=dev
