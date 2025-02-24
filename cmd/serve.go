@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/dating-app-go/cmd/serve"
+	"github.com/spf13/explore_service/cmd/serve"
 )
 
 // serveCmd represents the serve command
@@ -16,5 +16,5 @@ var serveCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(serveCmd)
-	serveCmd.AddCommand(serve.RestServerCmd)
+	serveCmd.AddCommand(serve.GrpcServerCmd)
 }
