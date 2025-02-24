@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: explore-service-rest-api
+    container_name: explore-service-grpc-api
     ports:
       - "55003:50050"
     entrypoint: ./main serve grpc

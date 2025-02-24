@@ -11,7 +11,7 @@ RUN go mod download
 # copy source code
 COPY cmd/ cmd/
 #COPY internal/ internal/
-#COPY pkg/ pkg/
+COPY pkg/ pkg/
 
 COPY main.go .
 #COPY .env .env
