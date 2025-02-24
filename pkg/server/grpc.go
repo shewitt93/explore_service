@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/spf13/explore_service/pkg/grpclibs"
+	"github.com/shewitt93/explore_service/pkg/grpclibs"
 	"time"
 )
 
