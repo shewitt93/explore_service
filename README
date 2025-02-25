@@ -10,3 +10,6 @@ ensure you have golang and docker installed.
 I've assumed a DEV environment for the sake of this assessment.
 I have structured the cmd serve folder to allow to a rest server for future usage(more to show how I go about doing this)
 
+
+
+cursor based pagination as an assumption, function to decode the token.

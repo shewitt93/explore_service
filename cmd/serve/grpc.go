@@ -2,8 +2,8 @@ package serve
 
 import (
 	"fmt"
+	"github.com/shewitt93/explore_service/internal/server"
 	"github.com/shewitt93/explore_service/pkg/grpclibs"
-	"github.com/shewitt93/explore_service/pkg/server"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"log"
