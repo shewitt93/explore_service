@@ -15,8 +15,8 @@ func NewExploreGRPCServer() *ExploreGRPCServer {
 
 type UserDecision struct {
 	ID          uint64 `json:"id"`
-	ActorID     uint64 `json:"actor_id"`
-	RecipientID uint64 `json:"recipient_id"`
+	ActorID     uint64
+	RecipientID uint64
 	LikedID     bool
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time
 }

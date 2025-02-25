@@ -14,7 +14,7 @@ import (
 )
 
 var GrpcServerCmd = &cobra.Command{
-	Use:   "pkg",
+	Use:   "grpc",
 	Short: "GRPC server",
 	Run:   startGrpcServer,
 }
@@ -26,6 +26,17 @@ func init() {
 
 func startGrpcServer(cmd *cobra.Command, args []string) {
 
+	log.Println("starting grpc server")
+	//opts := &redis.Options{
+	//	Addr: fmt.Sprintf("%f:%f", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
+	//	DB:   0,
+	//}
+	//
+	//redisClient := redis.NewClient(opts)
+	//redisClient.AddHook(nrredis.NewHook(opts))
+	//
+	//databaseManager := database.NewManager()
+	//
 	s := grpc.NewServer()
 
 	grpcServer := server.NewExploreGRPCServer()
