@@ -9,8 +9,8 @@ import (
 )
 
 type Cursor struct {
-	UpdatedAt       time.Time
-	RecipientUserId string
+	UpdatedAt time.Time
+	ActorId   string
 }
 
 func DecodeCursor(cursor string) (*Cursor, error) {
@@ -33,20 +33,20 @@ func DecodeCursor(cursor string) (*Cursor, error) {
 	}
 
 	// Parse the timestamp
-	updatedAt, err := time.Parse("2006-01-02 12:00:00", updatedAtStr)
+	updatedAt, err := time.Parse("2006-01-02 15:04:05", updatedAtStr)
 	if err != nil {
 		return nil, fmt.Errorf("invalid 'updated_at' format: %w", err)
 	}
 
-	// Extract "recipient_user_id" field
-	recipientUserId, ok := dataMap["recipient_user_id"].(string)
+	// Extract "actor_id" field
+	actorId, ok := dataMap["actor_id"].(string)
 	if !ok {
-		return nil, errors.New("missing or invalid 'recipient_user_id' field")
+		return nil, errors.New("missing or invalid 'actor_id' field")
 	}
 
 	// Construct and return Cursor object
 	return &Cursor{
-		UpdatedAt:       updatedAt,
-		RecipientUserId: recipientUserId,
+		UpdatedAt: updatedAt,
+		ActorId:   actorId,
 	}, nil
 }
