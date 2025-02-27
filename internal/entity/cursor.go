@@ -50,3 +50,24 @@ func DecodeCursor(cursor string) (*Cursor, error) {
 		ActorId:   actorId,
 	}, nil
 }
+
+func EncodeCursor(c *Cursor) (string, error) {
+	if c == nil {
+		return "", errors.New("cursor cannot be nil")
+	}
+
+	// Create a map for the cursor data
+	dataMap := map[string]interface{}{
+		"updated_at": c.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"actor_id":   c.ActorId,
+	}
+
+	// Marshal to JSON
+	data, err := json.Marshal(dataMap)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal cursor data: %w", err)
+	}
+
+	// Encode as base64
+	return base64.StdEncoding.EncodeToString(data), nil
+}
