@@ -1,7 +1,10 @@
 package serve
 
 import (
+	"database/sql"
 	"fmt"
+	"github.com/shewitt93/explore_service/internal/database"
+	"github.com/shewitt93/explore_service/internal/repository"
 	"github.com/shewitt93/explore_service/internal/server"
 	"github.com/shewitt93/explore_service/pkg/grpclibs"
 	"github.com/spf13/cobra"
@@ -27,19 +30,17 @@ func init() {
 func startGrpcServer(cmd *cobra.Command, args []string) {
 
 	log.Println("starting grpc server")
-	//opts := &redis.Options{
-	//	Addr: fmt.Sprintf("%f:%f", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
-	//	DB:   0,
-	//}
-	//
-	//redisClient := redis.NewClient(opts)
-	//redisClient.AddHook(nrredis.NewHook(opts))
-	//
-	//databaseManager := database.NewManager()
-	//
+	db, err := initDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer db.Close()
+
+	decisionRepository := repository.NewDecisionRepositoryImpl(db)
+
 	s := grpc.NewServer()
 
-	grpcServer := server.NewExploreGRPCServer()
+	grpcServer := server.NewExploreGRPCServer(decisionRepository)
 	grpclibs.RegisterExploreServiceServer(s, grpcServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", os.Getenv("GRPC_PORT")))
@@ -72,4 +73,30 @@ func startGrpcServer(cmd *cobra.Command, args []string) {
 	s.GracefulStop()
 
 	log.Println("Server stopped")
+}
+
+func initDB() (*sql.DB, error) {
+	// Get database connection details from environment variables
+	dbConfig := database.ConfigDatabase{
+		User:     getEnvWithDefault("DB_USER", "root"),
+		Password: getEnvWithDefault("DB_PASS", ""),
+		Host:     getEnvWithDefault("DB_HOST", "localhost"),
+		Port:     getEnvWithDefault("DB_PORT", "3306"),
+	}
+
+	dbName := getEnvWithDefault("DB_NAME", "explore_service")
+
+	// Generate DSN
+	dsn := database.GenerateDSN(dbConfig, dbName)
+
+	// Create database connection
+	return database.NewMysqlConnection(dsn)
+}
+
+func getEnvWithDefault(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }
