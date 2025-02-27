@@ -1,13 +1,15 @@
-CREATE TABLE user (
-    id INT PRIMARY KEY,
-    email TEXT NOT NULL,
-    name TEXT NOT NULL
-);
+# CREATE TABLE `user` (
+#      id INT PRIMARY KEY,
+#      email TEXT NOT NULL,
+#      name TEXT NOT NULL
+#
+#
+# );
 
 
 CREATE TABLE user_decisions (
-    actor_id TEXT NOT NULL,
-    recipient_id TEXT NOT NULL,
+    actor_id VARCHAR(255) NOT NULL,
+    recipient_id VARCHAR(255) NOT NULL,
     liked BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
