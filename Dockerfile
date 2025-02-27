@@ -14,7 +14,7 @@ COPY internal/ internal/
 COPY pkg/ pkg/
 
 COPY main.go .
-#COPY .env .env
+COPY .env .env
 
 
 RUN go build -o /app/main

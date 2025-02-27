@@ -20,10 +20,12 @@ services:
       - "55003:50050"
     entrypoint: ./main serve grpc
     environment:
-      - DB_HOST=
-      - DB_USER=root
-      - DB_PASS=
-      - DB_PORT=
+      - DB_HOST=mysqldb
+      - DB_USER=test
+      - DB_PASS=test
+      - DB_PORT=3306
       - GRPC_PORT=50050
       - ENV=dev
-
+      - DB_NAME=explore_muzz
+    depends_on:
+      - mysqldb
