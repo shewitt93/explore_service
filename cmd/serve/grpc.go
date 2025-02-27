@@ -3,6 +3,7 @@ package serve
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/shewitt93/explore_service/internal/database"
 	"github.com/shewitt93/explore_service/internal/repository"
 	"github.com/shewitt93/explore_service/internal/server"
@@ -78,9 +79,9 @@ func startGrpcServer(cmd *cobra.Command, args []string) {
 func initDB() (*sql.DB, error) {
 	// Get database connection details from environment variables
 	dbConfig := database.ConfigDatabase{
-		User:     getEnvWithDefault("DB_USER", "root"),
-		Password: getEnvWithDefault("DB_PASS", ""),
-		Host:     getEnvWithDefault("DB_HOST", "localhost"),
+		User:     getEnvWithDefault("DB_USER", "test"),
+		Password: getEnvWithDefault("DB_PASS", "test"),
+		Host:     getEnvWithDefault("DB_HOST", "mysqldb"),
 		Port:     getEnvWithDefault("DB_PORT", "3306"),
 	}
 
