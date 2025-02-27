@@ -20,7 +20,7 @@ func NewDecisionRepositoryImpl(db *sql.DB) DecisionRepository {
 
 func (r DecisionRepositoryImpl) ListLikersByRecipient(ctx context.Context, recipientID string, cursor *entity.Cursor, limit int) ([]entity.Liker, *entity.Cursor, error) {
 
-	baseQuery := "SELECT actor_id, UNIX_TIMESTAMP(updated_at) as unix_timestamp FROM user_decision WHERE recipient_id = ? AND liked = TRUE"
+	baseQuery := "SELECT actor_id, UNIX_TIMESTAMP(updated_at) as unix_timestamp FROM user_decisions WHERE recipient_id = ? AND liked = TRUE"
 
 	var args []interface{}
 	var query string
