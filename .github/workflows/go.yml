@@ -1,27 +1,46 @@
-name: Explore Service Test
+name: Go Unit Tests
 
 on:
   push:
-    branches:
-      - master
+    branches: [ main, master, develop ]
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
+    branches: [ main, master, develop ]
+
 jobs:
-  lint:
-    name: lint
+  test:
+    name: Run Unit Tests
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v1.60
-          args: --timeout=5m
+      - name: Checkout code
+        uses: actions/checkout@v3
 
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
 
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Install testify and sqlmock
+        run: |
+          go get github.com/stretchr/testify/assert
+          go get github.com/stretchr/testify/require
+          go get github.com/stretchr/testify/mock
+          go get github.com/DATA-DOG/go-sqlmock
+
+      - name: Run repository unit tests
+        run: go test -v ./internal/repository -count=1
+
+      - name: Run server unit tests
+        run: go test -v ./internal/server -count=1
+
+      - name: Run all tests with coverage
+        run: go test -v ./... -coverprofile=coverage.out
+
+      - name: Display coverage
+        run: go tool cover -func=coverage.out
