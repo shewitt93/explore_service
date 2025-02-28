@@ -1,10 +1,10 @@
-# CREATE TABLE `user` (
-#      id INT PRIMARY KEY,
-#      email TEXT NOT NULL,
-#      name TEXT NOT NULL
-#
-#
-# );
+CREATE TABLE `user` (
+     id INT PRIMARY KEY,
+     email TEXT NOT NULL,
+     name TEXT NOT NULL
+
+
+);
 
 
 CREATE TABLE user_decisions (

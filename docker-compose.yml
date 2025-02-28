@@ -18,14 +18,14 @@ services:
     container_name: explore-service-grpc-api
     ports:
       - "55003:50050"
-    entrypoint: ./main serve grpc
+    entrypoint: ["./main", "serve", "grpc"]
     environment:
-      - DB_HOST=mysqldb
-      - DB_USER=test
-      - DB_PASS=test
-      - DB_PORT=3306
-      - GRPC_PORT=50050
-      - ENV=dev
-      - DB_NAME=explore_muzz
+      DB_HOST: mysqldb
+      DB_USER: test
+      DB_PASS: test
+      DB_PORT: 3306
+      GRPC_PORT: 50050
+      ENV: dev
+      DB_NAME: explore_muzz
     depends_on:
       - mysqldb

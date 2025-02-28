@@ -71,3 +71,22 @@ func EncodeCursor(c *Cursor) (string, error) {
 	// Encode as base64
 	return base64.StdEncoding.EncodeToString(data), nil
 }
+
+func CreateNextCursor(likers []Liker, limit int) ([]Liker, *Cursor) {
+	// If we have more results than the limit, we need to create a cursor
+	if len(likers) > limit {
+		lastLiker := likers[limit-1]
+
+		// Create cursor for the next page
+		nextCursor := &Cursor{
+			UpdatedAt: time.Unix(int64(lastLiker.UnixTimestamp), 0),
+			ActorId:   lastLiker.ActorID,
+		}
+
+		// Trim results to the requested limit
+		return likers[:limit], nextCursor
+	}
+
+	// No need for a cursor if we have fewer results than the limit
+	return likers, nil
+}

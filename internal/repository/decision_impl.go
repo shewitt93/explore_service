@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/shewitt93/explore_service/internal/entity"
-	"time"
 )
 
 type DecisionRepositoryImpl struct {
@@ -39,40 +38,18 @@ func (r DecisionRepositoryImpl) ListLikersByRecipient(ctx context.Context, recip
 		args = []interface{}{recipientID, limit + 1}
 	}
 
-	// Execute the query
-	rows, err := r.db.QueryContext(ctx, query, args...)
+	// Execute the query and get results
+	likers, err := r.executeLikersQuery(ctx, query, args)
 	if err != nil {
-		return nil, nil, fmt.Errorf("database query failed: %w", err)
-	}
-	defer rows.Close()
-
-	// Process results
-	var likers []entity.Liker
-	for rows.Next() {
-		var liker entity.Liker
-		var unixTs int64
-		if err := rows.Scan(&liker.ActorID, &unixTs); err != nil {
-			return nil, nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-		liker.UnixTimestamp = uint64(unixTs)
-		likers = append(likers, liker)
+		return nil, nil, err
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, nil, fmt.Errorf("error iterating rows: %w", err)
-	}
-
-	// Set up next cursor if we have more results
+	// Handle pagination only if a cursor was originally provided
 	var nextCursor *entity.Cursor
-	if len(likers) > limit {
-		// We fetched one extra record to check if there are more results
-		lastLiker := likers[limit-1]
-		lastUpdatedAt := time.Unix(int64(lastLiker.UnixTimestamp), 0)
-		nextCursor = &entity.Cursor{
-			UpdatedAt: lastUpdatedAt,
-			ActorId:   lastLiker.ActorID,
-		}
-		// Return only the requested number of results
+	if cursor != nil && len(likers) > limit {
+		likers, nextCursor = entity.CreateNextCursor(likers, limit)
+	} else if len(likers) > limit {
+		// Just trim the results without creating a cursor
 		likers = likers[:limit]
 	}
 
@@ -80,19 +57,15 @@ func (r DecisionRepositoryImpl) ListLikersByRecipient(ctx context.Context, recip
 }
 
 func (r DecisionRepositoryImpl) ListNewLikersByRecipient(ctx context.Context, recipientID string, cursor *entity.Cursor, limit int) ([]entity.Liker, *entity.Cursor, error) {
-	if limit <= 0 {
-		limit = 50 // Default limit
-	}
-
 	// Base query excluding mutual likes
 	query := `
-		SELECT d1.actor_id, UNIX_TIMESTAMP(d1.updated_at) as unix_timestamp
-		FROM user_decisions d1
-		LEFT JOIN user_decisions d2 
-		    ON d1.actor_id = d2.recipient_id 
-		    AND d2.actor_id = d1.recipient_id 
-		    AND d2.liked = TRUE
-		WHERE d1.recipient_id = ? AND d1.liked = TRUE AND d2.actor_id IS NULL`
+        SELECT d1.actor_id, UNIX_TIMESTAMP(d1.updated_at) as unix_timestamp
+        FROM user_decisions d1
+        LEFT JOIN user_decisions d2 
+            ON d1.actor_id = d2.recipient_id 
+            AND d2.actor_id = d1.recipient_id 
+            AND d2.liked = TRUE
+        WHERE d1.recipient_id = ? AND d1.liked = TRUE AND d2.actor_id IS NULL`
 	args := []interface{}{recipientID}
 
 	// Apply cursor-based pagination if provided
@@ -104,42 +77,48 @@ func (r DecisionRepositoryImpl) ListNewLikersByRecipient(ctx context.Context, re
 	query += ` ORDER BY d1.updated_at DESC, d1.actor_id DESC LIMIT ?`
 	args = append(args, limit+1) // Fetch one extra to check for next page
 
-	// Execute query
+	// Execute the query and get results
+	likers, err := r.executeLikersQuery(ctx, query, args)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Handle pagination only if a cursor was originally provided
+	var nextCursor *entity.Cursor
+	if cursor != nil && len(likers) > limit {
+		likers, nextCursor = entity.CreateNextCursor(likers, limit)
+	} else if len(likers) > limit {
+		// Just trim the results without creating a cursor
+		likers = likers[:limit]
+	}
+
+	return likers, nextCursor, nil
+}
+
+// executeLikersQuery executes the SQL query and transforms the results into entities
+func (r DecisionRepositoryImpl) executeLikersQuery(ctx context.Context, query string, args []interface{}) ([]entity.Liker, error) {
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, nil, fmt.Errorf("query failed: %w", err)
+		return nil, fmt.Errorf("database query failed: %w", err)
 	}
 	defer rows.Close()
 
-	// Process results
 	var likers []entity.Liker
 	for rows.Next() {
 		var liker entity.Liker
 		var unixTs int64
 		if err := rows.Scan(&liker.ActorID, &unixTs); err != nil {
-			return nil, nil, fmt.Errorf("scan failed: %w", err)
+			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 		liker.UnixTimestamp = uint64(unixTs)
 		likers = append(likers, liker)
 	}
 
-	// Handle iteration error
 	if err := rows.Err(); err != nil {
-		return nil, nil, fmt.Errorf("row iteration error: %w", err)
+		return nil, fmt.Errorf("error iterating rows: %w", err)
 	}
 
-	// Determine next cursor
-	var nextCursor *entity.Cursor
-	if len(likers) > limit {
-		lastLiker := likers[limit-1]
-		nextCursor = &entity.Cursor{
-			UpdatedAt: time.Unix(int64(lastLiker.UnixTimestamp), 0),
-			ActorId:   lastLiker.ActorID,
-		}
-		likers = likers[:limit] // Trim extra record
-	}
-
-	return likers, nextCursor, nil
+	return likers, nil
 }
 
 func (r DecisionRepositoryImpl) CountLikersByRecipient(ctx context.Context, recipientID string) (uint64, error) {
