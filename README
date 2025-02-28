@@ -2,47 +2,28 @@
 
 ## Overview
 
-Explore Service is a high-performance gRPC microservice for managing user relationships in a dating application. It enables users to express interest in other users through "likes" and "passes", and provides endpoints to view users who have liked them.
-
-## Features
-
-- Record user decisions (likes/passes) on other users' profiles
-- Retrieve lists of users who have liked a specific user
-- Filter to show only users who have liked a user but haven't been liked back
-- Count the number of users who have liked a specific user
-- Check for mutual likes when recording decisions
-- Efficient pagination using cursor-based approach
-- Support for high-scale usage (users with hundreds of thousands of decisions)
-
-## Architecture
-
-The service is built with a clean architecture approach:
-
-- **gRPC API Layer**: Handles incoming requests and response formatting
-- **Repository Layer**: Manages data access and persistence
-- **Entity Layer**: Defines domain models and business rules
-- **Database Layer**: Abstracts database connection management
+This is my implementation of Muzz' explore microservice
 
 ## API Endpoints
 
 The service implements four gRPC endpoints as defined in the protocol buffer:
 
-1. `ListLikedYou`: Lists all users who liked the specified recipient
-2. `ListNewLikedYou`: Lists users who liked the recipient but haven't been liked back
-3. `CountLikedYou`: Counts the number of users who liked the recipient
-4. `PutDecision`: Records a user's decision (like or pass) about another user
+1. `ListLikedYou`: Lists all users who liked the specified recipient  
+2. `ListNewLikedYou`: Lists users who liked the recipient but haven't been liked back  
+3. `CountLikedYou`: Counts the number of users who liked the recipient  
+4. `PutDecision`: Records a user's decision (like or pass) about another user  
 
 ### Example Requests and Responses
 
 #### ListLikedYou
 
-Request (initial):
+**Request (initial):**
 ```json
 {
   "recipient_user_id": "1",
   "pagination_token": null
 }
-```
+
 
 Response:
 ```json
