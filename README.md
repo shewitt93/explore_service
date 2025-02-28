@@ -119,6 +119,8 @@ For efficient pagination of large result sets, the service uses cursor-based pag
 
 ## Deployment
 
+- N/A
+
 ### Prerequisites
 
 - Go 1.24
