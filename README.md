@@ -4,6 +4,10 @@
 
 This is my implementation of Muzz' explore microservice
 
+I have sent an invitation to Alex to join a postman workspace I've created so you can easily test my implementation
+
+
+
 ## API Endpoints
 
 The service implements four gRPC endpoints as defined in the protocol buffer:
