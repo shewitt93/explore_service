@@ -6,7 +6,6 @@ CREATE TABLE `user` (
 
 );
 
-
 CREATE TABLE user_decisions (
     actor_id VARCHAR(255) NOT NULL,
     recipient_id VARCHAR(255) NOT NULL,

@@ -28,6 +28,8 @@ func NewMysqlConnection(dsn string) (*sql.DB, error) {
 	}
 
 	// Try to ping with retries
+	//I've done this instead of adding a healthcheck to the docker container
+	//for the time being as the application won't start until the DB starts
 	maxRetries := 10
 	for i := 0; i < maxRetries; i++ {
 		err = db.Ping()
