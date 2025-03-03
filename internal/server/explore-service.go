@@ -9,6 +9,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const DefaultPageSize = 50
+
 type ExploreGRPCServer struct {
 	grpclibs.ExploreServiceServer
 	repo          repository.DecisionRepository
@@ -37,9 +39,7 @@ func (s *ExploreGRPCServer) ListLikedYou(ctx context.Context, req *grpclibs.List
 		cursor = decodedCursor
 	}
 
-	const pageSize = 50
-
-	likers, nextCursor, err := s.repo.ListLikersByRecipient(ctx, req.GetRecipientUserId(), cursor, pageSize)
+	likers, nextCursor, err := s.repo.ListLikersByRecipient(ctx, req.GetRecipientUserId(), cursor, DefaultPageSize)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to fetch likers: %v", err)
 	}
@@ -82,11 +82,8 @@ func (s *ExploreGRPCServer) ListNewLikedYou(ctx context.Context, req *grpclibs.L
 		cursor = decodedCursor
 	}
 
-	// Define page size
-	const pageSize = 50
-
 	// Call repository function to fetch new likers
-	likers, nextCursor, err := s.repo.ListNewLikersByRecipient(ctx, req.GetRecipientUserId(), cursor, pageSize)
+	likers, nextCursor, err := s.repo.ListNewLikersByRecipient(ctx, req.GetRecipientUserId(), cursor, DefaultPageSize)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to fetch new likers: %v", err)
 	}

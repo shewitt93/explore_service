@@ -173,3 +173,11 @@ docker exec -it mysqldb bash -c "mysql -utest -ptest explore_muzz < /tmp/seed-da
 4. **Transaction for Mutual Likes**: The mutual like check is performed within a transaction to ensure data consistency.
 5. **Error Handling**: Comprehensive error handling and informative error messages are provided.
 
+## Improvements I would make for production 
+
+1. add Redis caching for certain calls such as count of likes
+2. add middleware auth for each endpoint
+3. inject something like New Relic in to track deploys and errors
+4. create custom validation logic
+5. add rate limiting to requests As gRPC Interceptors
+6. add a healthcheck rather than a retry on the database build
