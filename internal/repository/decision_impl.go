@@ -133,7 +133,7 @@ func (r DecisionRepositoryImpl) CountLikersByRecipient(ctx context.Context, reci
 	return count, nil
 }
 
-func (r DecisionRepositoryImpl) CreateOrUpdateDecision(ctx context.Context, actorID string, recipientID string, liked bool) (bool, error) {
+func (r DecisionRepositoryImpl) CreateOrUpdateDecision(ctx context.Context, actorID, recipientID string, liked bool) (bool, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return false, fmt.Errorf("failed to begin transaction: %w", err)
@@ -141,34 +141,28 @@ func (r DecisionRepositoryImpl) CreateOrUpdateDecision(ctx context.Context, acto
 	defer tx.Rollback() // Rollback if not committed
 
 	// Insert or update the decision
-	query := `
-		INSERT INTO user_decisions (actor_id, recipient_id, liked, created_at, updated_at)
-		VALUES (?, ?, ?, NOW(), NOW())
-		ON DUPLICATE KEY UPDATE liked = ?, updated_at = NOW()`
+	query := `INSERT INTO user_decisions (actor_id, recipient_id, liked, created_at, updated_at)
+              VALUES (?, ?, ?, NOW(), NOW())
+              ON DUPLICATE KEY UPDATE liked = ?, updated_at = NOW()`
 
-	_, err = tx.ExecContext(ctx, query, actorID, recipientID, liked, liked)
-	if err != nil {
+	if _, err = tx.ExecContext(ctx, query, actorID, recipientID, liked, liked); err != nil {
 		return false, fmt.Errorf("failed to put decision: %w", err)
 	}
 
-	// If the decision is a like, check if there's a mutual like
+	// Only check for mutual like if this decision is a like
 	mutualLike := false
 	if liked {
-		checkQuery := `
-			SELECT EXISTS(
-				SELECT 1
-				FROM user_decisions
-				WHERE actor_id = ? AND recipient_id = ? AND liked = TRUE
-			)`
+		checkQuery := `SELECT EXISTS(
+                         SELECT 1 FROM user_decisions
+                         WHERE actor_id = ? AND recipient_id = ? AND liked = TRUE
+                       )`
 
-		err = tx.QueryRowContext(ctx, checkQuery, recipientID, actorID).Scan(&mutualLike)
-		if err != nil {
+		if err = tx.QueryRowContext(ctx, checkQuery, recipientID, actorID).Scan(&mutualLike); err != nil {
 			return false, fmt.Errorf("failed to check for mutual like: %w", err)
 		}
 	}
 
-	// Commit transaction
-	if err := tx.Commit(); err != nil {
+	if err = tx.Commit(); err != nil {
 		return false, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
