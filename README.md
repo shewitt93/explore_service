@@ -148,14 +148,6 @@ docker-compose up --build
 docker-compose down
 ```
 
-## Testing
-
-To run the test suite:
-```bash
-# Run tests
-go test ./...
-```
-
 Sample data for testing can be loaded using:
 ```bash
 # Copy seed file to container
