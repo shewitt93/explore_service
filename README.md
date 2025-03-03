@@ -8,6 +8,37 @@ I have sent an invitation to Alex to join a postman workspace I've created so yo
 
 I've also written a test pipeline so you can see they pass without manually having to run them which you can find in github actions
 
+### Prerequisites
+
+- Go 1.24
+- MySQL 8.0+
+- Docker and Docker Compose
+
+### Environment Variables
+For the sake of this assessment, I've simply committed this file.
+
+
+### Running the project
+
+```bash
+# Build the service
+go build main.go .
+
+# Start the service
+docker-compose up --build
+
+# Stop the service
+docker-compose down
+```
+
+Sample data for testing can be loaded using:
+```bash
+# Copy seed file to container
+docker cp seed-data.sql mysqldb:/tmp/
+
+# Execute seed file
+docker exec -it mysqldb bash -c "mysql -utest -ptest explore_muzz < /tmp/seed-data.sql"
+```
 
 ## API Endpoints
 
@@ -126,36 +157,24 @@ For efficient pagination of large result sets, the service uses cursor-based pag
 
 - N/A
 
-### Prerequisites
 
-- Go 1.24
-- MySQL 8.0+
-- Docker and Docker Compose
+## Architecture
 
-### Environment Variables
-For the sake of this assessment, I've simply committed this file.
+This service follows clean architecture principles to ensure separation of concerns and testability:
 
-### Running the project
+### Layers
 
-```bash
-# Build the service
-go build main.go .
+- **Entity Layer**: Core domain models that represent the business concepts (users, decisions, pagination cursors)
+- **Repository Layer**: Database abstraction layer that handles all data access operations
+- **Service Layer**: Contains business logic and coordinates between the API and repository layers
+- **API Layer**: gRPC interface that handles client requests and responses
 
-# Start the service
-docker-compose up --build
+### Key Patterns
 
-# Stop the service
-docker-compose down
-```
+- **Repository Pattern**: Provides an abstraction of data access, making the service more maintainable and testable
+- **Dependency Injection**: Components receive their dependencies through constructors rather than creating them internally
+- **Interface-Based Design**: Key components are defined as interfaces, allowing for mock implementations during testing
 
-Sample data for testing can be loaded using:
-```bash
-# Copy seed file to container
-docker cp seed-data.sql mysqldb:/tmp/
-
-# Execute seed file
-docker exec -it mysqldb bash -c "mysql -utest -ptest explore_muzz < /tmp/seed-data.sql"
-```
 
 ## Design Decisions and Assumptions
 
