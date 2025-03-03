@@ -171,5 +171,5 @@ docker exec -it mysqldb bash -c "mysql -utest -ptest explore_muzz < /tmp/seed-da
 2. add middleware auth for each endpoint
 3. inject something like New Relic in to track deploys and errors
 4. create custom validation logic
-5. add rate limiting to requests As gRPC Interceptors
+5. add rate limiting to requests such as a gRPC Interceptor
 6. add a healthcheck rather than a retry on the database build
