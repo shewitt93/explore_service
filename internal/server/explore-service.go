@@ -11,24 +11,26 @@ import (
 
 type ExploreGRPCServer struct {
 	grpclibs.ExploreServiceServer
-	repo repository.DecisionRepository
+	repo          repository.DecisionRepository
+	cursorService entity.CursorService
 }
 
-func NewExploreGRPCServer(repo repository.DecisionRepository) *ExploreGRPCServer {
+func NewExploreGRPCServer(repo repository.DecisionRepository, cursorService entity.CursorService) *ExploreGRPCServer {
 	return &ExploreGRPCServer{
-		repo: repo,
+		repo:          repo,
+		cursorService: cursorService,
 	}
 }
 
 func (s *ExploreGRPCServer) ListLikedYou(ctx context.Context, req *grpclibs.ListLikedYouRequest) (*grpclibs.ListLikedYouResponse, error) {
-
 	//user isn't empty check if receipient ID is not empty string
 	if req.GetRecipientUserId() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "missing recipient user id")
 	}
+
 	var cursor *entity.Cursor
 	if req.PaginationToken != nil && *req.PaginationToken != "" {
-		decodedCursor, err := entity.DecodeCursor(*req.PaginationToken)
+		decodedCursor, err := s.cursorService.Decode(*req.PaginationToken)
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "invalid pagination token: %v", err)
 		}
@@ -54,7 +56,7 @@ func (s *ExploreGRPCServer) ListLikedYou(ctx context.Context, req *grpclibs.List
 	}
 
 	if nextCursor != nil {
-		token, err := entity.EncodeCursor(nextCursor)
+		token, err := s.cursorService.Encode(nextCursor)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to encode pagination token: %v", err)
 		}
@@ -65,7 +67,6 @@ func (s *ExploreGRPCServer) ListLikedYou(ctx context.Context, req *grpclibs.List
 }
 
 func (s *ExploreGRPCServer) ListNewLikedYou(ctx context.Context, req *grpclibs.ListLikedYouRequest) (*grpclibs.ListLikedYouResponse, error) {
-
 	// Check if recipient ID is not empty string
 	if req.GetRecipientUserId() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "missing recipient user id")
@@ -74,7 +75,7 @@ func (s *ExploreGRPCServer) ListNewLikedYou(ctx context.Context, req *grpclibs.L
 	// Handle pagination token if provided
 	var cursor *entity.Cursor
 	if req.PaginationToken != nil && *req.PaginationToken != "" {
-		decodedCursor, err := entity.DecodeCursor(*req.PaginationToken)
+		decodedCursor, err := s.cursorService.Decode(*req.PaginationToken)
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "invalid pagination token: %v", err)
 		}
@@ -105,7 +106,7 @@ func (s *ExploreGRPCServer) ListNewLikedYou(ctx context.Context, req *grpclibs.L
 
 	// Add pagination token if there are more results
 	if nextCursor != nil {
-		token, err := entity.EncodeCursor(nextCursor)
+		token, err := s.cursorService.Encode(nextCursor)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to encode pagination token: %v", err)
 		}
@@ -116,7 +117,6 @@ func (s *ExploreGRPCServer) ListNewLikedYou(ctx context.Context, req *grpclibs.L
 }
 
 func (s *ExploreGRPCServer) CountLikedYou(ctx context.Context, req *grpclibs.CountLikedYouRequest) (*grpclibs.CountLikedYouResponse, error) {
-
 	if req.GetRecipientUserId() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "missing recipient user id")
 	}

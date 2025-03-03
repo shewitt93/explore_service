@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/shewitt93/explore_service/internal/database"
+	"github.com/shewitt93/explore_service/internal/entity"
 	"github.com/shewitt93/explore_service/internal/repository"
 	"github.com/shewitt93/explore_service/internal/server"
 	"github.com/shewitt93/explore_service/pkg/grpclibs"
@@ -38,10 +39,11 @@ func startGrpcServer(cmd *cobra.Command, args []string) {
 	defer db.Close()
 
 	decisionRepository := repository.NewDecisionRepositoryImpl(db)
+	cursorService := entity.NewCursorService()
 
 	s := grpc.NewServer()
 
-	grpcServer := server.NewExploreGRPCServer(decisionRepository)
+	grpcServer := server.NewExploreGRPCServer(decisionRepository, cursorService)
 	grpclibs.RegisterExploreServiceServer(s, grpcServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", os.Getenv("GRPC_PORT")))

@@ -6,6 +6,7 @@ This is my implementation of Muzz' explore microservice
 
 I have sent an invitation to Alex to join a postman workspace I've created so you can easily test my implementation
 
+I've also written a test pipeline so you can see they pass without manually having to run them which you can find in github actions
 
 
 ## API Endpoints
